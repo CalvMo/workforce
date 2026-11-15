@@ -1,6 +1,6 @@
-# Workforce: timesheets and leave (Django starter)
+# Workforce: Timesheets and Leave Management project
 
-A working starter project for weekly timesheets and leave management, with South African public holidays and BCEA-style leave defaults built in.
+A working  project for weekly timesheets and leave management, with South African public holidays and BCEA-style leave defaults built in.
 
 ## Quick start
 
@@ -13,7 +13,7 @@ python manage.py seed_demo         # demo leave types, projects and users
 python manage.py runserver
 ```
 
-Open http://127.0.0.1:8000 and sign in as `staff1`, `staff2`, `manager` or `admin` (password `demo12345`). The admin site is at `/admin/`.
+
 
 Run the tests with `python manage.py test tests`.
 
@@ -71,11 +71,3 @@ Business rules live in each app's `services.py`, so the views stay thin and the 
 
 These follow common BCEA minimums for a five-day week, but company policy and employment contracts vary. Check them with HR before going live. Two simplifications to be aware of: the BCEA allows one day of sick leave per 26 days worked during the first six months of employment (the starter grants the full cycle upfront), and annual leave carry-over rules are often set by company policy rather than law.
 
-## Suggested next steps
-
-1. Move to PostgreSQL and set `SECRET_KEY`, `DEBUG` and `ALLOWED_HOSTS` from environment variables before deploying.
-2. Email or Teams notifications on submit, approve and reject (Django signals or a task queue).
-3. Payroll and utilisation exports to Excel or CSV.
-4. Microsoft 365 single sign-on (for example with `django-allauth` or `mozilla-django-oidc`).
-5. A REST API with Django REST Framework if you want a mobile app or a separate front end.
-6. Pro-rata entitlements for part-time staff and leave encashment on termination.
