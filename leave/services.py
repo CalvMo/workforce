@@ -11,6 +11,7 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from people.models import Employee
+from people.permissions import can_approve
 from people.utils import add_months, working_days_between
 
 from .models import LeaveLedgerEntry, LeaveRequest, LeaveType
@@ -105,11 +106,7 @@ def submit_request(employee: Employee, *, leave_type, start_date, end_date,
 
 
 def can_decide(approver: Employee, req: LeaveRequest, user=None) -> bool:
-    if approver and approver.pk == req.employee_id:
-        return False  # nobody approves their own leave
-    if approver and approver.manages(req.employee):
-        return True
-    return bool(user and user.has_perm("leave.change_leaverequest"))
+    return can_approve(approver, req.employee, user, perm="leave.change_leaverequest")
 
 
 @transaction.atomic

@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from people.decorators import employee_required
+from people.permissions import approvable_by
 from people.utils import holiday_name, week_start_for
 
 from . import services
@@ -106,9 +107,7 @@ def history(request):
 def approvals(request):
     emp = request.employee
     qs = Timesheet.objects.filter(status=Timesheet.Status.SUBMITTED).select_related("employee__user")
-    if not request.user.has_perm("timesheets.change_timesheet"):
-        qs = qs.filter(employee__manager=emp)
-    qs = qs.exclude(employee=emp)
+    qs = approvable_by(qs, emp, request.user, perm="timesheets.change_timesheet")
     rows = [{"ts": ts, "expected": services.expected_hours(ts)} for ts in qs]
     return render(request, "timesheets/approvals.html", {"rows": rows})
 
@@ -117,7 +116,7 @@ def approvals(request):
 @employee_required
 def review(request, pk):
     ts = get_object_or_404(Timesheet.objects.select_related("employee__user"), pk=pk)
-    if not (ts.employee_id == request.employee.pk or services._can_decide(request.employee, ts, request.user)):
+    if not (ts.employee_id == request.employee.pk or services.can_decide(request.employee, ts, request.user)):
         raise PermissionDenied
     rows, headers, day_totals = _grid(ts)
     return render(request, "timesheets/review.html", {

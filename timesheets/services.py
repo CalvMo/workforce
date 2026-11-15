@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from leave.models import LeaveRequest
 from people.models import Employee
+from people.permissions import can_approve
 from people.utils import is_working_day, week_start_for
 
 from .models import Timesheet, TimesheetEntry
@@ -67,18 +68,14 @@ def submit_timesheet(ts: Timesheet, by: Employee) -> Timesheet:
     return ts
 
 
-def _can_decide(approver: Employee, ts: Timesheet, user=None) -> bool:
-    if approver and approver.pk == ts.employee_id:
-        return False
-    if approver and approver.manages(ts.employee):
-        return True
-    return bool(user and user.has_perm("timesheets.change_timesheet"))
+def can_decide(approver: Employee, ts: Timesheet, user=None) -> bool:
+    return can_approve(approver, ts.employee, user, perm="timesheets.change_timesheet")
 
 
 @transaction.atomic
 def decide_timesheet(ts: Timesheet, approver: Employee, approve: bool, comment="", user=None) -> Timesheet:
     ts = Timesheet.objects.select_for_update().get(pk=ts.pk)
-    if not _can_decide(approver, ts, user):
+    if not can_decide(approver, ts, user):
         raise PermissionDenied("You may not approve this timesheet.")
     if ts.status != Timesheet.Status.SUBMITTED:
         raise ValidationError("Only submitted timesheets can be approved or rejected.")

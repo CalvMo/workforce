@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
 from people.decorators import employee_required
+from people.permissions import approvable_by
 
 from . import services
 from .forms import DecisionForm, LeaveRequestForm
@@ -66,9 +67,7 @@ def approvals(request):
     qs = LeaveRequest.objects.filter(status=LeaveRequest.Status.PENDING).select_related(
         "employee__user", "leave_type"
     )
-    if not request.user.has_perm("leave.change_leaverequest"):
-        qs = qs.filter(employee__manager=emp)
-    qs = qs.exclude(employee=emp)
+    qs = approvable_by(qs, emp, request.user, perm="leave.change_leaverequest")
     rows = [{"req": r, "available": services.available_balance(r.employee, r.leave_type)
              if r.leave_type.tracks_balance else None} for r in qs]
     return render(request, "leave/approvals.html", {"rows": rows, "form": DecisionForm()})
