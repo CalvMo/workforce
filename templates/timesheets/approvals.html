@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Timesheet approvals{% endblock %}
+{% block content %}
+<h1>Timesheet approvals</h1>
+<p><a href="{% url 'leave:approvals' %}">Go to leave approvals</a></p>
+<div class="card"><table><tr><th>Employee</th><th>Week</th><th class="num">Logged</th><th class="num">Expected</th><th>Submitted</th><th></th></tr>
+{% for row in rows %}<tr><td>{{ row.ts.employee }}</td><td>{{ row.ts.week_start }}</td><td class="num">{{ row.ts.total_hours }}</td><td class="num">{{ row.expected }}</td><td>{{ row.ts.submitted_at|date:"j M H:i" }}</td><td><a class="btn" href="{% url 'timesheets:review' row.ts.pk %}">Review</a></td></tr>
+{% empty %}<tr><td colspan="6" class="muted">Nothing waiting for approval.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

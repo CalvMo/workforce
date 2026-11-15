@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Timesheet history{% endblock %}
+{% block content %}
+<h1>Timesheet history</h1>
+<div class="card"><table><tr><th>Week</th><th class="num">Hours</th><th>Status</th><th></th></tr>
+{% for ts in sheets %}<tr><td>{{ ts.week_start }}</td><td class="num">{{ ts.total_hours }}</td><td><span class="pill {{ ts.status }}">{{ ts.get_status_display }}</span></td><td><a href="{% url 'timesheets:week' %}?week={{ ts.week_start|date:'Y-m-d' }}">Open</a></td></tr>
+{% empty %}<tr><td colspan="4" class="muted">No timesheets yet.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

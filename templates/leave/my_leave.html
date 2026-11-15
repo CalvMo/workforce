@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}My leave{% endblock %}
+{% block content %}
+<h1>My leave</h1>
+<div class="grid">
+  <div class="card"><h2>Balances</h2>
+    <table><tr><th>Type</th><th class="num">Balance</th><th class="num">Pending</th><th class="num">Available</th></tr>
+    {% for b in balances %}<tr><td>{{ b.leave_type.name }}</td><td class="num">{{ b.balance }}</td><td class="num">{{ b.pending }}</td><td class="num"><strong>{{ b.available }}</strong></td></tr>{% endfor %}
+    </table></div>
+  <div class="card"><h2>Apply for leave</h2>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.non_field_errors }}{{ form.as_p }}<button>Submit request</button></form>
+    <p class="muted">Weekends and public holidays are excluded automatically.</p></div>
+</div>
+<div class="card"><h2>My requests</h2>
+<table><tr><th>Type</th><th>From</th><th>To</th><th class="num">Days</th><th>Status</th><th>Decision</th><th></th></tr>
+{% for r in requests %}<tr>
+  <td>{{ r.leave_type }}</td><td>{{ r.start_date }}{% if r.start_half_day %} (pm){% endif %}</td><td>{{ r.end_date }}{% if r.end_half_day %} (am){% endif %}</td>
+  <td class="num">{{ r.days }}</td><td><span class="pill {{ r.status }}">{{ r.get_status_display }}</span></td>
+  <td>{% if r.decided_by %}{{ r.decided_by }}{% if r.decision_comment %}: <span class="muted">{{ r.decision_comment }}</span>{% endif %}{% endif %}</td>
+  <td>{% if r.status == "pending" or r.status == "approved" %}<form method="post" action="{% url 'leave:cancel' r.pk %}">{% csrf_token %}<button class="secondary">Cancel</button></form>{% endif %}</td>
+</tr>{% empty %}<tr><td colspan="7" class="muted">No requests yet.</td></tr>{% endfor %}
+</table></div>
+<div class="card"><h2>Balance history</h2>
+<table><tr><th>Date</th><th>Type</th><th>Movement</th><th class="num">Days</th><th>Note</th></tr>
+{% for e in ledger %}<tr><td>{{ e.effective_date }}</td><td>{{ e.leave_type.code }}</td><td>{{ e.get_kind_display }}</td><td class="num">{{ e.days }}</td><td class="muted">{{ e.note }}</td></tr>
+{% empty %}<tr><td colspan="5" class="muted">No movements yet.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

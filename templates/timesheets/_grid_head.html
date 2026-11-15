@@ -1,0 +1,1 @@
+<tr><th>Project</th>{% for h in headers %}<th class="num {% if h.weekend %}weekend{% endif %} {% if h.holiday %}holiday{% endif %}" title="{{ h.holiday|default:'' }}">{{ h.date|date:"D" }}<br>{{ h.date|date:"j M" }}</th>{% endfor %}<th class="num">Total</th></tr>

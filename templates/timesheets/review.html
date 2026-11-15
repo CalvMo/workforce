@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Review timesheet{% endblock %}
+{% block content %}
+<h1>{{ ts.employee }}: week of {{ ts.week_start|date:"j F Y" }}</h1>
+<div class="card">
+  <p><span class="pill {{ ts.status }}">{{ ts.get_status_display }}</span> {{ ts.total_hours }} of {{ expected }} expected hours</p>
+  <table class="ts">{% include "timesheets/_grid_head.html" %}
+  {% for row in rows %}<tr><td>{{ row.project }}</td>{% for c in row.cells %}<td class="num">{{ c.entry.hours|default_if_none:"" }}</td>{% endfor %}<td class="num"><strong>{{ row.total }}</strong></td></tr>{% endfor %}
+  <tr><th>Daily total</th>{% for t in day_totals %}<th class="num">{{ t }}</th>{% endfor %}<th class="num">{{ ts.total_hours }}</th></tr></table>
+  {% if ts.status == "submitted" and ts.employee != request.employee %}
+  <form method="post" action="{% url 'timesheets:decide' ts.pk %}" style="margin-top:1rem">{% csrf_token %}
+    <textarea name="comment" rows="2" cols="60" placeholder="Comment (required to reject)"></textarea><br>
+    <button name="action" value="approve">Approve</button> <button name="action" value="reject" class="danger">Return for correction</button>
+  </form>{% endif %}
+</div>
+{% endblock %}

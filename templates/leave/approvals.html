@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Leave approvals{% endblock %}
+{% block content %}
+<h1>Leave approvals</h1>
+<p><a href="{% url 'timesheets:approvals' %}">Go to timesheet approvals</a></p>
+<div class="card">
+<table><tr><th>Employee</th><th>Type</th><th>Period</th><th class="num">Days</th><th class="num">Available</th><th>Reason</th><th>Decision</th></tr>
+{% for row in rows %}{% with r=row.req %}<tr>
+  <td>{{ r.employee }}</td><td>{{ r.leave_type }}</td><td>{{ r.start_date }} to {{ r.end_date }}</td>
+  <td class="num">{{ r.days }}</td><td class="num">{{ row.available|default_if_none:"-" }}</td>
+  <td>{{ r.reason|default:"-" }}{% if r.attachment %}<br><a href="{{ r.attachment.url }}">Attachment</a>{% endif %}</td>
+  <td><form method="post" action="{% url 'leave:decide' r.pk %}">{% csrf_token %}
+    <textarea name="comment" rows="2" placeholder="Comment (required to reject)"></textarea><br>
+    <button name="action" value="approve">Approve</button> <button name="action" value="reject" class="danger">Reject</button></form></td>
+</tr>{% endwith %}{% empty %}<tr><td colspan="7" class="muted">Nothing waiting for approval.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

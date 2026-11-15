@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Timesheet{% endblock %}
+{% block content %}
+<h1>Timesheet: week of {{ ts.week_start|date:"j F Y" }}</h1>
+<p>
+  <a class="btn secondary" href="?week={{ prev_week|date:'Y-m-d' }}">Previous week</a>
+  <a class="btn secondary" href="?">This week</a>
+  <a class="btn secondary" href="?week={{ next_week|date:'Y-m-d' }}">Next week</a>
+  <a href="{% url 'timesheets:history' %}" style="margin-left:1rem">History</a>
+</p>
+<div class="card">
+  <p><span class="pill {{ ts.status }}">{{ ts.get_status_display }}</span>
+     Logged <strong>{{ ts.total_hours }}</strong> of <strong>{{ expected }}</strong> expected hours
+     <span class="muted">(public holidays and approved leave excluded)</span></p>
+  {% if ts.status == "rejected" and ts.decision_comment %}<p class="messages"><span class="error" style="display:block;padding:.6rem">Returned by {{ ts.decided_by }}: {{ ts.decision_comment }}</span></p>{% endif %}
+  <form method="post">{% csrf_token %}
+  <table class="ts">
+    {% include "timesheets/_grid_head.html" %}
+    {% for row in rows %}<tr><td>{{ row.project }}</td>
+      {% for c in row.cells %}<td class="num">{% if ts.is_editable %}<input type="text" inputmode="decimal" name="h_{{ row.project.pk }}_{{ c.date|date:'Y-m-d' }}" value="{{ c.entry.hours|default_if_none:'' }}">{% else %}{{ c.entry.hours|default_if_none:"" }}{% endif %}</td>{% endfor %}
+      <td class="num"><strong>{{ row.total }}</strong></td></tr>
+    {% empty %}<tr><td colspan="9" class="muted">Add a project below to start logging time.</td></tr>{% endfor %}
+    <tr><th>Daily total</th>{% for t in day_totals %}<th class="num">{{ t }}</th>{% endfor %}<th class="num">{{ ts.total_hours }}</th></tr>
+  </table>
+  {% if ts.is_editable and rows %}<p><button name="save" value="1" class="secondary">Save</button> <button name="submit" value="1">Save and submit</button></p>{% endif %}
+  </form>
+  {% if ts.is_editable and available_projects %}
+  <form method="get" style="margin-top:1rem">
+    <input type="hidden" name="week" value="{{ ts.week_start|date:'Y-m-d' }}">
+    <select name="add">{% for p in available_projects %}<option value="{{ p.pk }}">{{ p }}</option>{% endfor %}</select>
+    <button class="secondary">Add project row</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

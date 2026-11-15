@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Hello, {{ request.employee }}</h1>
+<div class="grid">
+  {% for b in balances %}
+  <div class="card"><div class="muted">{{ b.leave_type.name }}</div>
+    <div class="big">{{ b.available }}</div>
+    <div class="muted">days available{% if b.pending %} ({{ b.pending }} pending){% endif %}</div></div>
+  {% endfor %}
+  <div class="card"><div class="muted">This week's timesheet</div>
+    <div class="big">{{ ts.total_hours }} / {{ expected }}</div>
+    <div><span class="pill {{ ts.status }}">{{ ts.get_status_display }}</span> <a href="{% url 'timesheets:week' %}">Open</a></div></div>
+  {% if pending_leave or pending_ts %}
+  <div class="card"><div class="muted">Waiting for you</div>
+    <div><a href="{% url 'leave:approvals' %}">{{ pending_leave }} leave request{{ pending_leave|pluralize }}</a></div>
+    <div><a href="{% url 'timesheets:approvals' %}">{{ pending_ts }} timesheet{{ pending_ts|pluralize }}</a></div></div>
+  {% endif %}
+</div>
+<div class="card"><h2>Upcoming leave</h2>
+{% if upcoming %}<table><tr><th>Type</th><th>From</th><th>To</th><th class="num">Days</th><th>Status</th></tr>
+{% for r in upcoming %}<tr><td>{{ r.leave_type }}</td><td>{{ r.start_date }}</td><td>{{ r.end_date }}</td><td class="num">{{ r.days }}</td><td><span class="pill {{ r.status }}">{{ r.get_status_display }}</span></td></tr>{% endfor %}
+</table>{% else %}<p class="muted">Nothing booked. <a href="{% url 'leave:mine' %}">Apply for leave</a></p>{% endif %}
+</div>
+{% endblock %}

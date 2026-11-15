@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Team leave{% endblock %}
+{% block content %}
+<h1>Team leave</h1>
+<div class="card"><table><tr><th>Employee</th><th>Type</th><th>From</th><th>To</th><th class="num">Days</th><th>Status</th></tr>
+{% for r in requests %}<tr><td>{{ r.employee }}</td><td>{{ r.leave_type }}</td><td>{{ r.start_date }}</td><td>{{ r.end_date }}</td><td class="num">{{ r.days }}</td><td><span class="pill {{ r.status }}">{{ r.get_status_display }}</span></td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No leave booked in your team.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}
