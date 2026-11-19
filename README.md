@@ -71,3 +71,6 @@ Business rules live in each app's `services.py`, so the views stay thin and the 
 
 These follow common BCEA minimums for a five-day week, but company policy and employment contracts vary. Check them with HR before going live. Two simplifications to be aware of: the BCEA allows one day of sick leave per 26 days worked during the first six months of employment (the starter grants the full cycle upfront), and annual leave carry-over rules are often set by company policy rather than law.
 
+## License
+
+Copyright (c) 2026 Calvin Molapo. Released under the [MIT License](LICENSE).
